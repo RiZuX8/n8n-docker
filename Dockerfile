@@ -15,7 +15,8 @@ WORKDIR /tmp/mcrcon
 RUN gcc -std=gnu11 -pedantic -Wall -Wextra -O2 -s -o mcrcon mcrcon.c
 
 # Fase 2: Bouw de definitieve n8n image
-FROM n8nio/n8n:latest
+# We pakken expliciet de Debian versie. Dit garandeert dat apt-get werkt.
+FROM n8nio/n8n:latest-debian
 
 # Schakel tijdelijk naar de root-gebruiker
 USER root
