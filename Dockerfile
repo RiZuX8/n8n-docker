@@ -21,7 +21,9 @@ FROM n8nio/n8n:latest-debian
 USER root
 
 # Installeer rclone
-RUN apt-get update --allow-releaseinfo-change && apt-get install -y rclone
+RUN rm -rf /var/lib/apt/lists/* \
+    && apt-get update --allow-releaseinfo-change \
+    && apt-get install -y rclone
 
 # Kopieer het gecompileerde 'mcrcon' bestand uit de builder-fase
 COPY --from=builder /tmp/mcrcon/mcrcon /usr/local/bin/mcrcon
