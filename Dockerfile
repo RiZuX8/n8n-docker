@@ -21,8 +21,8 @@ FROM n8nio/n8n:latest
 USER root
 
 # --- Installeer rclone ---
-RUN apk add --no-cache rclone
-# --------------------------------
+RUN apt-get update && apt-get install -y rclone
+# -----------------------------------------------------------
 
 # Kopieer het gecompileerde 'mcrcon' bestand uit de builder-fase
 COPY --from=builder /tmp/mcrcon/mcrcon /usr/local/bin/mcrcon
