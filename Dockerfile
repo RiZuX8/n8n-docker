@@ -15,15 +15,13 @@ WORKDIR /tmp/mcrcon
 RUN gcc -std=gnu11 -pedantic -Wall -Wextra -O2 -s -o mcrcon mcrcon.c
 
 # Fase 2: Bouw de definitieve n8n image
-# We pakken expliciet de Debian versie. Dit garandeert dat apt-get werkt.
 FROM n8nio/n8n:latest-debian
 
 # Schakel tijdelijk naar de root-gebruiker
 USER root
 
-# --- Installeer rclone ---
-RUN apt-get update && apt-get install -y rclone
-# -----------------------------------------------------------
+# Installeer rclone
+RUN apt-get update --allow-releaseinfo-change && apt-get install -y rclone
 
 # Kopieer het gecompileerde 'mcrcon' bestand uit de builder-fase
 COPY --from=builder /tmp/mcrcon/mcrcon /usr/local/bin/mcrcon
