@@ -20,6 +20,10 @@ FROM n8nio/n8n:latest
 # Schakel tijdelijk naar de root-gebruiker
 USER root
 
+# --- Installeer rclone ---
+RUN apk add --no-cache rclone
+# --------------------------------
+
 # Kopieer het gecompileerde 'mcrcon' bestand uit de builder-fase
 COPY --from=builder /tmp/mcrcon/mcrcon /usr/local/bin/mcrcon
 
