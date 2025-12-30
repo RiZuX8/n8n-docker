@@ -1,21 +1,33 @@
-# Fase 1: Bouw mcrcon (op Alpine basis)
-FROM alpine:3.18 as builder
+# --- FASE 1: Bouw mcrcon (Gebruikt Debian als bouwer) ---
+FROM debian:buster-slim as builder
 
-RUN apk add --no-cache git build-base
+# Setup voor bouwen
+RUN sed -i 's/deb.debian.org/archive.debian.org/g' /etc/apt/sources.list \
+ && sed -i 's/security.debian.org/archive.debian.org/g' /etc/apt/sources.list \
+ && sed -i '/buster-updates/d' /etc/apt/sources.list
+RUN apt-get update && apt-get install -y git build-essential gcc
 
+# Compileer mcrcon
 RUN git clone https://github.com/Tiiffi/mcrcon.git /tmp/mcrcon
 WORKDIR /tmp/mcrcon
 RUN gcc -std=gnu11 -pedantic -Wall -Wextra -O2 -s -o mcrcon mcrcon.c
 
-# Fase 2: De n8n image (Expliciet ALPINE)
-FROM n8nio/n8n:alpine
+# --- FASE 2: Haal Rclone binnen (De truc!) ---
+# We gebruiken de officiële rclone image alleen om het bestandje te pakken
+FROM rclone/rclone:latest as rclone_source
+
+# --- FASE 3: De uiteindelijke n8n image ---
+FROM n8nio/n8n:latest
 
 USER root
 
-# Nu MOET apk wel werken, want de basis is 100% zeker Alpine
-RUN apk add --no-cache rclone
-
+# KOPIEER mcrcon van Fase 1
 COPY --from=builder /tmp/mcrcon/mcrcon /usr/local/bin/mcrcon
-RUN chmod +x /usr/local/bin/mcrcon
+
+# KOPIEER rclone van Fase 2
+COPY --from=rclone_source /usr/local/bin/rclone /usr/local/bin/rclone
+
+# Zorg dat alles uitvoerbaar is
+RUN chmod +x /usr/local/bin/mcrcon && chmod +x /usr/local/bin/rclone
 
 USER node
